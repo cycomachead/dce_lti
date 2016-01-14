@@ -38,8 +38,12 @@ module DceLti
     end
 
     def captured_attributes_from(tool_provider)
-      Engine.config.copy_launch_attributes_to_session.inject({}) do |attributes, att|
-        attributes.merge(att => tool_provider.send(att))
+      attributes_to_copy = Engine.config.copy_launch_attributes_to_session
+      if attributes_to_copy.respond_to?(:call)
+        attributes_to_copy = attributes_to_copy.call(params)
+      end
+      attributes_to_copy.inject({}) do |attributes, att|
+        attributes.merge(att => params[att]) #tool_provider.send(att)
       end
     end
   end
